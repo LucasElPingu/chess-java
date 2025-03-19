@@ -159,6 +159,7 @@ public static void clearScreen() {
 - `ChessException`
 - `InputMismatchException`
 
+
 ------
 ------
 ------
