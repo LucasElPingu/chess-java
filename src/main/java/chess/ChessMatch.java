@@ -63,6 +63,9 @@ public class ChessMatch {
 		if (!board.thereIsAPiece(s)) {
 			throw new ChessException("Posição inválida: não existe peça na posição de origem");
 		}
+		if(!board.piece(s).isThereAnyPossibleMove()) {
+			throw new ChessException("Posição inválida: não existe movimentos possíveis para a peça escolhida");
+		}
 
 	}
 }
