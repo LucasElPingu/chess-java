@@ -29,7 +29,7 @@ public class Position {
 		@Override
 		public String toString() {
 			StringBuilder builder = new StringBuilder();
-			builder.append("Position: row = ");
+			builder.append("row = ");
 			builder.append(row);
 			builder.append(", column = ");
 			builder.append(column);
