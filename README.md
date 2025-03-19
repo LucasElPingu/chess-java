@@ -158,7 +158,34 @@ public static void clearScreen() {
 ### Checklist:
 - `ChessException`
 - `InputMismatchException`
+- 
+------
 
+## Possíveis movimentos de uma peça
+
+### Checklist:
+- **Métodos na classe `Piece`**
+  - `PossibleMoves` [abstract] (Retorna uma matriz de boolean indicando os movimentos possíveis de cada peça)
+  - `PossibleMove` (Verifica se a peça pode se mover para uma posição específica)
+  - `IsThereAnyPossibleMove` (Verifica se há pelo menos um movimento possível)
+- **Implementação básica de `PossibleMove` para `Rook` e `King`**
+- **Atualização de `ChessMatch.ValidateSourcePosition` (Verificação de ao menos um movimento disponível para a peça)**
+- **Tópicos de POO:**
+  - Métodos e classes abstratas
+  - Exceções
+
+---
+
+## Implementação dos movimentos da torre
+
+### Checklist:
+- **Método `ChessPiece.IsThereOpponentPiece(position)` [protected]** (Verifica se há peças inimigas na posição de destino)
+- **Implementação de `Rook.PossibleMoves`** (Determina as casas para onde a torre pode se mover)
+- **Método `ChessMatch.ValidateTargetPosition`** (Valida se a posição de destino é válida em relação à de origem)
+- **Tópicos de POO:**
+  - Polimorfismo
+  - Encapsulamento / Modificadores de acesso [`protected`]
+  - Exceções
 
 ------
 ------
