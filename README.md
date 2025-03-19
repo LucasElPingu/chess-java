@@ -78,6 +78,87 @@
 - **Tópicos de Estruturas de Dados:**
   - Matriz
 ------
+## Criação de exceções personalizadas e programação defensiva
+
+### Checklist:
+- Class `BoardException` [public] (Exceção para o tabuleiro)
+- Methods:
+  - `Board.PositionExists`
+  - `Board.ThereIsAPiece` (Verifica se existe a posição e se nessa posição tem alguma peça)
+- Implementar programação defensiva nos métodos de `Board`
+
+### **OOP Topics:**
+- Exceptions
+- Constructors (a string deve ser informada à exceção)
+
+------
+
+## ChessException e ChessPosition (Exceção na camada de xadrez)
+
+### Checklist:
+- Class `ChessException` [public]
+- Class `ChessPosition` [public] (Classe que representa o sistema de coordenadas do tabuleiro, ex: "a1", possui os métodos para converter de uma posição de xadrez para uma posição comum e o inverso)
+  - OBS: Se subtrair o Unicode do caractere `'a' - 'a' = 0`, `'b' - 'a' = 1` e assim por diante.
+- Refatorar `ChessMatch.InitialSetup`
+
+### **OOP Topics:**
+- Exceptions
+- Encapsulation
+- Constructors (a string deve ser informada à exceção)
+- Overriding
+- Static members
+- Layers pattern
+
+------
+
+## Melhora na impressão do tabuleiro
+
+### Color in terminal:
+- **Windows:** Git Bash (na pasta `bin` onde ficam os arquivos compilados do projeto, dentro do `mavenproject` e na pasta `\target\classes`)
+- **Mac:** Pesquisar "osx terminal color"
+  - OBS: O projeto será executado pelo Git Bash
+
+### Checklist:
+- Colocar mais peças no tabuleiro
+- Distinguir cores das peças no método `UI.PrintPiece`
+
+------
+
+## Movendo as peças
+
+### Checklist:
+- Method `Board.RemovePiece` (método para remover a peça)
+- Method `UI.ReadChessPosition` (método para ler uma posição do usuário quando ele mover a peça)
+- Method `ChessMatch.PerformChessMove`
+  - Converte de xadrez para matriz
+  - Valida a posição
+  - Movimenta a peça
+  - Retorna a peça capturada
+  - Method `ChessMatch.MakeMove` (Faz o movimento da peça removendo uma possível peça na posição de destino)
+  - Method `ChessMatch.ValidadeSourcePosition` (Mudar a `RunTimeException` na classe `ChessException` para `BoardException`, pois exceções de xadrez são também exceções de tabuleiro)
+- Escrever a lógica básica no `Program.cs` (Fazer a leitura e o movimento da peça)
+
+### **OOP Topics:**
+- Exceptions
+- Encapsulation
+
+------
+
+## Lidando com as exceções e limpando a tela
+
+### Clear screen using Java:
+```java
+// https://stackoverflow.com/questions/2979383/java-clear-the-console
+public static void clearScreen() {
+ System.out.print("\033[H\033[2J");
+ System.out.flush();
+}
+```
+
+### Checklist:
+- `ChessException`
+- `InputMismatchException`
+
 ------
 ------
 ------
