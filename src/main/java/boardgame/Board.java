@@ -36,7 +36,7 @@ public class Board {
 		return pieces[position.getRow()][position.getColumn()];
 	}
 	
-	public void placePiece(Piece piece, Position positon) { //responsavel por mover a peça
+	public void placePiece(Piece piece, Position positon) { //responsavel por mover a peça inicialmente
 		if(thereIsAPiece(positon)) {
 			throw new BoardException("Erro: Posição inválida, já possui uma peça na posição " + positon);
 		}
@@ -55,5 +55,17 @@ public class Board {
 		}
 		//return pieces[position.getRow()][position.getColumn()] != null; outro método 
 		return piece(position) != null;
+	}
+	//método para remove a peça quando ela for tomada
+	public Piece removePiece(Position position) {
+		if(!positionExists(position)) {
+			throw new BoardException("Erro: Posição inexistente");
+		}
+		if(piece(position) == null)
+			return null;
+		Piece aux = piece(position);
+		aux.position = null;
+		pieces[position.getRow()][position.getColumn()] = null;
+		return aux;
 	}
 }
