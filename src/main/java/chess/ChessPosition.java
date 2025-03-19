@@ -30,6 +30,7 @@ public class ChessPosition {
 	
 	//da matriz para o xadrez sublinhada no UML=static
 	protected static ChessPosition fromPosition(Position position) {
+		//necessário fazer o casting para o char
 		return new ChessPosition((char)('a' - position.getColumn()) , position.getRow() - 8);
 		
 	}
