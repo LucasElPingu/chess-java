@@ -1,7 +1,10 @@
 package application;
 
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import chess.ChessMatch;
 import chess.ChessPiece;
@@ -42,9 +45,10 @@ public class UI {
 			throw new InputMismatchException("Erro ao ler a posição no xadrez. Valores válidos de a1 até h8");
 		}
 	}
-	
-	public static void printMatch(ChessMatch chessMatch) {
+
+	public static void printMatch(ChessMatch chessMatch, List<ChessPiece>captured) {
 		printBoard(chessMatch.getPieces());
+		printCapturedPieces(captured, chessMatch);
 		System.out.println("\nTurn: " + chessMatch.getTurn());
 		System.out.println("Esperando o player: " + chessMatch.getCurrentPlayer());
 	}
@@ -59,8 +63,8 @@ public class UI {
 		}
 		System.out.println("  a b c d e f g h");
 	}
-	
-	public static void printBoard(ChessPiece[][] piece, boolean[][]possibleMoves) {
+
+	public static void printBoard(ChessPiece[][] piece, boolean[][] possibleMoves) {
 		for (int i = 0; i < piece.length; i++) {
 			System.out.print((8 - i) + " ");
 			for (int j = 0; j < piece[i].length; j++) {
@@ -70,9 +74,10 @@ public class UI {
 		}
 		System.out.println("  a b c d e f g h");
 	}
-	//quando for true o backgroud ele vai ser pintado
+
+	// quando for true o backgroud ele vai ser pintado
 	public static void printPieces(ChessPiece piece, boolean background) {
-		if(background) {
+		if (background) {
 			System.out.print(ANSI_RED_BACKGROUND);
 		}
 		if (piece == null) {
@@ -90,5 +95,19 @@ public class UI {
 	public static void clearScreen() {
 		System.out.print("\033[H\033[2J");
 		System.out.flush();
+	}
+
+	private static void printCapturedPieces(List<ChessPiece> captured, ChessMatch chessMatch) {
+		List<ChessPiece> white = captured.stream().filter(x -> x.getColor() == Color.WHITE)
+				.collect(Collectors.toList());
+		List<ChessPiece> black = captured.stream().filter(x -> x.getColor() == Color.BLACK)
+				.collect(Collectors.toList());
+		System.out.println("\nPeças capturadas: ");
+		white.forEach(System.out::println);
+		if (chessMatch.getCurrentPlayer() == Color.BLACK)
+			//A lista armazena as peças brancas capturadas
+			System.out.println("Brancas: [" + white.stream().map(Object::toString).collect(Collectors.joining(", ")) + "]");
+		else
+			System.out.println("Pretas: [" + black.stream().map(Object::toString).collect(Collectors.joining(", ")) + "]");
 	}
 }

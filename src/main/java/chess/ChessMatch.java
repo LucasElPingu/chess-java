@@ -1,5 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import boardgame.Board;
 import boardgame.Piece;
 import boardgame.Position;
@@ -13,7 +16,9 @@ public class ChessMatch {
 	private Color currentPlayer;
 	private Board board;
 
-	public ChessMatch() {
+	private List<ChessPiece> piecesOnTheBoard = new ArrayList<>();
+	private List<ChessPiece> capturedPieces = new ArrayList<>();
+	public ChessMatch() { 
 		board = new Board(8, 8);
 		turn = 1; //inicia no 1 a partida e as brancas começam
 		currentPlayer = Color.WHITE;
@@ -42,6 +47,8 @@ public class ChessMatch {
 	private void placeNewPiece(char column, int row, ChessPiece piece) {
 		//chamada o placepiece e passa a peça e instancia um nova posição no xadrez passando a coluna e a linha e convertendo para posição de matriz
 		board.placePiece(piece, new ChessPosition(column, row).toPosition());
+		//Quando colocar a peça no tabuleiro tem que colocar na lista de peças no tabuleiro
+		piecesOnTheBoard.add(piece);
 	}
 
 	//responsavel por iniciar a partida de xadrez colocando as peças no tabuleiro
@@ -78,6 +85,10 @@ public class ChessMatch {
 		Piece p = board.removePiece(s);
 		Piece capPiece = board.removePiece(t);
 		board.placePiece(p, t);
+		if(capPiece != null) {
+			piecesOnTheBoard.remove(capPiece);
+			capturedPieces.add((ChessPiece)capPiece);
+		}
 		return capPiece;
 	}
 	//validando se existe uma peça na origem
@@ -85,6 +96,7 @@ public class ChessMatch {
 		if (!board.thereIsAPiece(s)) {
 			throw new ChessException("Posição inválida: não existe peça na posição de origem");
 		}
+		//verifica se a peça escolhida e a cor do currentPlayer, caso não lança uma exceção
 		if(currentPlayer != ((ChessPiece)board.piece(s)).getColor()) {
 			throw new ChessException("Peça escolhida inválida: Escolha uma peça da cor " + currentPlayer);
 		}
