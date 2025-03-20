@@ -17,8 +17,8 @@ public class Program {
 		Scanner sc = new Scanner(System.in);
 		ChessMatch cm = new ChessMatch();
 		List<ChessPiece> captured = new ArrayList<>();
-
-		while (true) {
+		//enquanto n der cheque-mate a partida continua
+		while (!cm.getCheckMate()) {
 			try {
 				UI.clearScreen();
 				UI.printMatch(cm, captured);
@@ -46,6 +46,8 @@ public class Program {
 			}
 
 		}
+		UI.clearScreen();
+		UI.printMatch(cm, captured);
 
 	}
 

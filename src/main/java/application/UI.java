@@ -50,11 +50,18 @@ public class UI {
 		printBoard(chessMatch.getPieces());
 		printCapturedPieces(captured, chessMatch);
 		System.out.println("\nTurn: " + chessMatch.getTurn());
-		System.out.println("Esperando o player: " + chessMatch.getCurrentPlayer());
-		//chama toda a lógica de check pelo getCheck
-		if(chessMatch.getCheck()) {
-			System.out.println("CHECK!");
+		//checa se não foi cheque-mate, se for true, entra no if
+		if(!chessMatch.getCheckMate()) {
+			System.out.println("Esperando o player: " + chessMatch.getCurrentPlayer());
+			//chama toda a lógica de check pelo getCheck
+			if(chessMatch.getCheck()) {
+				System.out.println("CHECK!");
+			}
+		}else { //se for false, imprime na tela
+			System.out.println("CHECKMATE");
+			System.out.println("VENCENDOR: " + chessMatch.getCurrentPlayer());
 		}
+
 	}
 
 	public static void printBoard(ChessPiece[][] piece) {
@@ -107,7 +114,6 @@ public class UI {
 		List<ChessPiece> black = captured.stream().filter(x -> x.getColor() == Color.BLACK)
 				.collect(Collectors.toList());
 		System.out.println("\nPeças capturadas: ");
-		white.forEach(System.out::println);
 		if (chessMatch.getCurrentPlayer() == Color.BLACK)
 			//A lista armazena as peças brancas capturadas
 			System.out.println("Brancas: [" + white.stream().map(Object::toString).collect(Collectors.joining(", ")) + "]");
