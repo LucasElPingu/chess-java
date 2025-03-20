@@ -42,6 +42,12 @@ public class ChessMatch {
 		placeNewPiece('e', 8, new King(board, Color.BLACK));
 		placeNewPiece('a', 8,new Rook(board, Color.BLACK));
 	}
+	
+	public boolean[][] possibleMoves(ChessPosition sourcePosition){
+		Position position = sourcePosition.toPosition();
+		validateSourcePosition(position);
+		return board.piece(position).possibleMoves();
+	}
 
 	//transforma de xadrez para matriz, valida a posição, movimenta a peça e retorna a peça capturada
 	public ChessPiece peformChessMove(ChessPosition source, ChessPosition target) {
@@ -70,10 +76,12 @@ public class ChessMatch {
 			throw new ChessException("Posição inválida: não existe movimentos possíveis para a peça escolhida");
 		}
 	}
-	//validando se e possivel mover a peça para o destino
+	//validando se e possivel mover a peça para o destino em relação a origem
 	private void validateTargetPosition(Position s, Position t) {
 		if(!board.piece(s).possibleMove(t)) {
 			throw new ChessException("A peça escolhida não pode se mover para a posição de destino");
 		}
 	}
+	
+
 }
