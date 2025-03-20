@@ -19,7 +19,7 @@ public class King extends ChessPiece {
 	// Retorna se o rei pode mover dada uma determinada posição
 	private boolean canMove(Position position) {
 		// Armazena a peça na posição passada em p e retorna true se a peça for
-		// diferente de nulo e se a cor for diferente
+		// igual a nulo ou a cor for diferente
 		ChessPiece p = (ChessPiece) getBoard().piece(position);
 		return p == null || p.getColor() != getColor();
 	}

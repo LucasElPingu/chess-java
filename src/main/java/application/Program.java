@@ -18,7 +18,7 @@ public class Program {
 		while (true) {
 			try {
 				UI.clearScreen();
-				UI.printBoard(cm.getPieces());
+				UI.printMatch(cm);
 				System.out.println("\nSource: ");
 				ChessPosition source = UI.readChessPosition(sc);
 				//vai armazenar os possiveis movimentos para serem passados como argumento no printBoard

@@ -9,11 +9,23 @@ import chess.pieces.Rook;
 //Quem tem que saber a dimensão de um tabuleiro de xadrez e a classe ChessMatch
 public class ChessMatch {
 
+	private int turn;
+	private Color currentPlayer;
 	private Board board;
 
 	public ChessMatch() {
 		board = new Board(8, 8);
+		turn = 1; //inicia no 1 a partida e as brancas começam
+		currentPlayer = Color.WHITE;
 		initialSetup(); //Para ser criado na hora que a partida for criada
+		
+	}
+
+	public int getTurn() {
+		return turn;
+	}
+	public Color getCurrentPlayer() {
+		return currentPlayer;
 	}
 
 	//retorna a matriz de peças da partida de xadrez
@@ -56,6 +68,7 @@ public class ChessMatch {
 		validateSourcePosition(s);
 		validateTargetPosition(s, t);
 		Piece capturedPiece = makeMove(s, t);
+		nextTurn();
 		return (ChessPiece) capturedPiece; 
 	}
 
@@ -72,6 +85,9 @@ public class ChessMatch {
 		if (!board.thereIsAPiece(s)) {
 			throw new ChessException("Posição inválida: não existe peça na posição de origem");
 		}
+		if(currentPlayer != ((ChessPiece)board.piece(s)).getColor()) {
+			throw new ChessException("Peça escolhida inválida: Escolha uma peça da cor " + currentPlayer);
+		}
 		if(!board.piece(s).isThereAnyPossibleMove()) {
 			throw new ChessException("Posição inválida: não existe movimentos possíveis para a peça escolhida");
 		}
@@ -83,5 +99,9 @@ public class ChessMatch {
 		}
 	}
 	
-
+	private void nextTurn() {
+		turn++;
+		//Expresão condicional ternaria
+		currentPlayer = (currentPlayer == Color.WHITE) ? Color.BLACK : Color.WHITE;
+	}
 }
