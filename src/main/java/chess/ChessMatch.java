@@ -42,7 +42,7 @@ public class ChessMatch {
 		placeNewPiece('e', 8, new King(board, Color.BLACK));
 		placeNewPiece('a', 8,new Rook(board, Color.BLACK));
 	}
-	
+	//Retorna uma matriz de boolean com os possíveis movimentos a partir da peça
 	public boolean[][] possibleMoves(ChessPosition sourcePosition){
 		Position position = sourcePosition.toPosition();
 		validateSourcePosition(position);

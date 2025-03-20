@@ -63,7 +63,7 @@ public class UI {
 		}
 		System.out.println("  a b c d e f g h");
 	}
-
+	//quando for true o backgroud ele vai ser pintado
 	public static void printPieces(ChessPiece piece, boolean background) {
 		if(background) {
 			System.out.print(ANSI_RED_BACKGROUND);

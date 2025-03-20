@@ -21,7 +21,7 @@ public class Program {
 				UI.printBoard(cm.getPieces());
 				System.out.println("\nSource: ");
 				ChessPosition source = UI.readChessPosition(sc);
-
+				//vai armazenar os possiveis movimentos para serem passados como argumento no printBoard
 				boolean[][] possibleMoves = cm.possibleMoves(source);
 				UI.clearScreen();
 				UI.printBoard(cm.getPieces(), possibleMoves);
