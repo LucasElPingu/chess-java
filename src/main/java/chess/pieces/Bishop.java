@@ -4,6 +4,7 @@ import boardgame.Board;
 import boardgame.Position;
 import chess.ChessPiece;
 import chess.Color;
+import chess.Icons;
 
 public class Bishop extends ChessPiece{
 
@@ -56,6 +57,7 @@ public class Bishop extends ChessPiece{
 
 		return mat;
 	}
+	
 	@Override
 	public String toString() {
 		return "B";

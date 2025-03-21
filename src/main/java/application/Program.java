@@ -13,6 +13,7 @@ import chess.ChessPosition;
 public class Program {
 
 	public static void main(String[] args) {
+		System.setProperty("file.encoding", "UTF-8");
 
 		Scanner sc = new Scanner(System.in);
 		ChessMatch cm = new ChessMatch();
@@ -28,6 +29,7 @@ public class Program {
 				boolean[][] possibleMoves = cm.possibleMoves(source);
 				UI.clearScreen();
 				UI.printBoard(cm.getPieces(), possibleMoves);
+				
 				
 				System.out.println("\nTarget: ");
 				ChessPosition target = UI.readChessPosition(sc);
