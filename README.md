@@ -191,9 +191,9 @@ public static void clearScreen() {
 
 ## Imprimindo possíveis movimentos
 ### Checklist:
-- **Method ChessMatch.PossibleMoves**: Retorna uma matriz de boolean com os possíveis movimentos a partir da peça.
-- **Method UI.PrintBoard [overload]**: Se for passada uma matriz de booleans como argumento no método `printBoard`, ele passará a matriz no argumento do `printPieces`; caso contrário, ele passará `false`.
-- **Refactor main program logic**: No `Program`, criar uma matriz de booleans recebendo `possibleMoves`, limpar a tela e depois passar como argumento no `printBoard`.
+- **Method ChessMatch.PossibleMoves** (Retorna uma matriz de boolean com os possíveis movimentos a partir da peça)
+- **Method UI.PrintBoard [overload]** (Se for passada uma matriz de booleans como argumento no método `printBoard`, ele passará a matriz no argumento do `printPieces`; caso contrário, ele passará `false`)
+- **Refactor main program logic** (No `Program`, criar uma matriz de booleans recebendo `possibleMoves`, limpar a tela e depois passar como argumento no `printBoard`)
 
 ### OOP Topics:
 - Overloading
@@ -202,8 +202,8 @@ public static void clearScreen() {
 
 ## Implementando os possíveis movimentos básicos do rei
 ### Checklist:
-- **Method King.CanMove(position) [private]**: Retorna se o rei pode mover para uma determinada posição, armazena a peça na posição passada em `p` e retorna `true` se a peça for `null` ou a cor for diferente.
-- **Implement King.PossibleMoves**: Implementação dos movimentos básicos do rei (exemplo: verificar a posição `row - 1, column` para movimento para cima).
+- **Method King.CanMove(position) [private]** (Retorna se o rei pode mover para uma determinada posição, armazena a peça na posição passada em `p` e retorna `true` se a peça for `null` ou a cor for diferente)
+- **Implement King.PossibleMoves** (Implementação dos movimentos básicos do rei, exemplo: verificar a posição `row - 1, column` para movimento para cima)
 
 ### OOP Topics:
 - Encapsulation
@@ -215,10 +215,10 @@ public static void clearScreen() {
 ### Checklist:
 - **Class ChessMatch:**
   - **Properties Turn, CurrentPlayer [private set]**
-  - **Method NextTurn [private]**: Incrementa o `int turn` e troca a cor armazenada em `currentPlayer`.
-  - **Update PerformChessMove**: Adiciona `nextTurn` antes do `return`.
-  - **Update ValidadeSourcePosition**: Verifica se a peça escolhida pertence ao `currentPlayer`; caso contrário, lança uma exceção.
-- **Method UI.PrintMatch**: Imprime o tabuleiro e depois exibe o turno e a cor do jogador.
+  - **Method NextTurn [private]** (Incrementa o `int turn` e troca a cor armazenada em `currentPlayer`)
+  - **Update PerformChessMove** (Adiciona `nextTurn` antes do `return`)
+  - **Update ValidadeSourcePosition** (Verifica se a peça escolhida pertence ao `currentPlayer`; caso contrário, lança uma exceção)
+- **Method UI.PrintMatch** (Imprime o tabuleiro e depois exibe o turno e a cor do jogador)
 
 ### OOP Topics:
 - Encapsulation
@@ -228,14 +228,14 @@ public static void clearScreen() {
 
 ## Lidando com as peças capturadas
 ### Checklist:
-- **Method UI.PrintCapturedPieces**: Cria duas listas para armazenar as peças capturadas (pretas e brancas).
-- **Update UI.PrintMatch**: Adiciona a exibição das peças capturadas ao lado do tabuleiro.
-- **Update Program logic**: Adiciona um `if` para verificar se uma peça foi capturada e armazená-la na lista de peças capturadas.
+- **Method UI.PrintCapturedPieces** (Cria duas listas para armazenar as peças capturadas, pretas e brancas)
+- **Update UI.PrintMatch** (Adiciona a exibição das peças capturadas ao lado do tabuleiro)
+- **Update Program logic** (Adiciona um `if` para verificar se uma peça foi capturada e armazená-la na lista de peças capturadas)
 - **Lists in ChessMatch:**
   - `_piecesOnTheBoard`, `_capturedPieces`
-  - **Update constructor**: Instancia as listas no construtor.
-  - **Update PlaceNewPiece**: Adiciona as peças à lista de peças no tabuleiro.
-  - **Update MakeMove**: Remove a peça da lista do tabuleiro e adiciona à lista de peças capturadas se necessário.
+  - **Update constructor** (Instancia as listas no construtor)
+  - **Update PlaceNewPiece** (Adiciona as peças à lista de peças no tabuleiro)
+  - **Update MakeMove** (Remove a peça da lista do tabuleiro e adiciona à lista de peças capturadas se necessário)
 
 ### OOP Topics:
 - Encapsulation
@@ -252,28 +252,30 @@ public static void clearScreen() {
 - O jogador não pode se colocar em `check`.
 
 ### Checklist:
-- **Property ChessPiece.ChessPosition [get]**: Cria um método `getChessPosition` para retornar a posição no formato do tabuleiro.
+- **Property ChessPiece.ChessPosition [get]** (Cria um método `getChessPosition` para retornar a posição no formato do tabuleiro)
 - **Class ChessMatch:**
-  - **Method UndoMove**: Desfaz a última jogada.
-  - **Property Check [private set]**: Booleano `check`.
-  - **Method Opponent [private]**: Retorna a cor do oponente com base na cor do jogador.
-  - **Method King(color) [private]**: Obtém a posição do rei da cor especificada.
-  - **Method TestCheck**: Verifica se o rei está em `check` percorrendo a lista de peças adversárias e verificando se alguma pode se mover para a posição do rei.
-  - **Update PerformChessMove**:
-    - Testa se o movimento coloca o próprio rei em `check`; caso positivo, desfaz a jogada e lança uma exceção.
-    - Testa se o oponente está em `check` e ajusta a variável `check`.
-- **Update UI.PrintMatch**: Exibe a mensagem `CHECK!` caso o rei esteja sob ameaça.
+  - **Method UndoMove** (Desfaz a última jogada)
+  - **Property Check [private set]** (Booleano `check`)
+  - **Method Opponent [private]** (Retorna a cor do oponente com base na cor do jogador)
+  - **Method King(color) [private]** (Obtém a posição do rei da cor especificada)
+  - **Method TestCheck** (Verifica se o rei está em `check` percorrendo a lista de peças adversárias e verificando se alguma pode se mover para a posição do rei)
+  - **Update PerformChessMove**
+    - (Testa se o movimento coloca o próprio rei em `check`; caso positivo, desfaz a jogada e lança uma exceção)
+    - (Testa se o oponente está em `check` e ajusta a variável `check`)
+- **Update UI.PrintMatch** (Exibe a mensagem `CHECK!` caso o rei esteja sob ameaça)
 
 ------
 
 ## Implementação da lógica de checkmate
 ### Checklist:
 - **Class ChessMatch:** 
-  - **Property Checkmate [private set]** : boolean que confirmara o cheque-mate.
-  - **Method TestCheckmate [private]**: Lógica de cheque-mate.
-  - **Update PerformChessMove**: Testa se o oponente da peça que se mexeu está em check-mate e seta a variável **checkMate** para **true**, além de colocar no **else** o **nextTurn**.
-- **Update UI.PrintMatch**: Antes de permitir que o jogador jogue, verifica se não foi cheque-mate, caso seja falso entra no **if** e permite o jogador continuar, **else** imprime cheque-mate.
-- **Update Program logic**: Coloca no enquanto não for cheque-mate... No final limpa a tela e imprimi o **printMatch**
+  - **Property Checkmate [private set]** (Boolean que confirmará o cheque-mate)
+  - **Method TestCheckmate [private]** (Lógica de cheque-mate)
+  - **Update PerformChessMove** (Testa se o oponente da peça que se mexeu está em check-mate e seta a variável `checkMate` para `true`, além de colocar no `else` o `nextTurn`)
+- **Update UI.PrintMatch** (Antes de permitir que o jogador jogue, verifica se não foi cheque-mate, caso seja falso entra no `if` e permite o jogador continuar, `else` imprime cheque-mate)
+- **Update Program logic** (Coloca no enquanto não for cheque-mate... No final limpa a tela e imprime o `printMatch`)
+
+
 
 ------
 ------
