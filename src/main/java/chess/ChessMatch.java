@@ -256,7 +256,7 @@ public class ChessMatch {
 			throw new IllegalStateException("Não há peça a ser promovida");
 		}
 		if (!type.equals("B") && !type.equals("C") && !type.equals("T") && !type.equals("Q")) {
-			throw new InvalidParameterException("Tipo inválido para a promoção");
+			return promoted;
 		}
 		//Cria uma variável de posição pos e armazena a posição do peão que sera removido
 		Position pos = promoted.getChessPosition().toPosition();
