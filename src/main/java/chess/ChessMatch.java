@@ -1,6 +1,7 @@
 package chess;
 
 import java.nio.channels.Pipe.SourceChannel;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ public class ChessMatch {
 	private boolean check;
 	private boolean checkMate;
 	private ChessPiece enPassantVulnerable;
+	private ChessPiece promoted;
 
 	private List<ChessPiece> piecesOnTheBoard = new ArrayList<>();
 	private List<ChessPiece> capturedPieces = new ArrayList<>();
@@ -38,6 +40,10 @@ public class ChessMatch {
 
 	public int getTurn() {
 		return turn;
+	}
+
+	public ChessPiece getPromoted() {
+		return promoted;
 	}
 
 	public Color getCurrentPlayer() {
@@ -153,7 +159,7 @@ public class ChessMatch {
 
 	// responsavel por iniciar a partida de xadrez colocando as peças no tabuleiro
 	private void initialSetup() {
-		
+
 		placeNewPiece('e', 1, new King(board, Color.WHITE, this));
 		placeNewPiece('d', 1, new Queen(board, Color.WHITE));
 		placeNewPiece('a', 1, new Rook(board, Color.WHITE));
@@ -172,7 +178,7 @@ public class ChessMatch {
 		placeNewPiece('h', 2, new Pawn(board, Color.WHITE, this));
 
 		placeNewPiece('d', 8, new Queen(board, Color.BLACK));
-		//this e referente ao propia classe
+		// this e referente ao propia classe
 		placeNewPiece('e', 8, new King(board, Color.BLACK, this));
 		placeNewPiece('h', 8, new Rook(board, Color.BLACK));
 		placeNewPiece('a', 8, new Rook(board, Color.BLACK));
@@ -210,9 +216,20 @@ public class ChessMatch {
 			undoMove(s, t, capturedPiece);
 			throw new ChessException("Posição inválida: o rei ficara em check");
 		}
-		
-		ChessPiece movedPiece = (ChessPiece)board.piece(t);
-		
+
+		ChessPiece movedPiece = (ChessPiece) board.piece(t);
+
+		promoted = null;
+		if (movedPiece instanceof Pawn) {
+			if (movedPiece.getColor() == Color.WHITE && t.getRow() == 0
+					|| movedPiece.getColor() == Color.BLACK && t.getRow() == 7) {
+				promoted = (ChessPiece) board.piece(t);
+				// Começa trocando pela rainha, pois fica mais facil, depois troca pela peça que
+				// o user escolher
+				promoted = replacePromotedPiece("Q");
+			}
+		}
+
 		// testa se o oponente esta em check
 		check = (testCheck(opponent(currentPlayer))) ? true : false;
 		// se o oponente da peça que mexeu ficou em xeque-mate acabou o game
@@ -221,16 +238,50 @@ public class ChessMatch {
 		} else {
 			nextTurn();
 		}
-		//Checar se foi um peão que moveu duas casas para ficar vulnerável ao en passant
-		if(movedPiece instanceof Pawn && (target.getRow() == source.getRow() - 2 || (target.getRow() == source.getRow() + 2))){
+		// Checar se foi um peão que moveu duas casas para ficar vulnerável ao en
+		// passant
+		if (movedPiece instanceof Pawn
+				&& (t.getRow() == s.getRow() - 2 || (t.getRow() == s.getRow() + 2))) {
 			enPassantVulnerable = movedPiece;
-		}else {
+		} else {
 			enPassantVulnerable = null;
 		}
-		
+
 		return (ChessPiece) capturedPiece;
 	}
 
+	//promoção
+	public ChessPiece replacePromotedPiece(String type) {
+		if (promoted == null) {
+			throw new IllegalStateException("Não há peça a ser promovida");
+		}
+		if (!type.equals("B") && !type.equals("C") && !type.equals("T") && !type.equals("Q")) {
+			throw new InvalidParameterException("Tipo inválido para a promoção");
+		}
+		//Cria uma variável de posição pos e armazena a posição do peão que sera removido
+		Position pos = promoted.getChessPosition().toPosition();
+		//remove o peão
+		Piece p = board.removePiece(pos);
+		piecesOnTheBoard.remove(p);
+		//A nova peça que será colocada no lugar do peão
+		ChessPiece newPiece = newPiece(type, promoted.getColor());
+		//coloca a peça na posição
+		board.placePiece(newPiece, pos);
+		piecesOnTheBoard.add(newPiece);
+		return newPiece;
+
+	}
+
+	// método auxiliar retornando a peça que sera adicionada no lugar do peão
+	private ChessPiece newPiece(String type, Color color) {
+		if (type.equals("B"))
+			return new Bishop(board, color);
+		if (type.equals("C"))
+			return new Knight(board, color);
+		if (type.equals("T"))
+			return new Rook(board, color);
+			return new Queen(board, color);
+	}
 
 	// Faz o movimento da peça removendo uma posivel peça na posição de destino
 	private Piece makeMove(Position s, Position t) {
@@ -242,33 +293,34 @@ public class ChessMatch {
 			piecesOnTheBoard.remove(capPiece);
 			capturedPieces.add((ChessPiece) capPiece);
 		}
-		//Roque para direita
-		if(p instanceof King && t.getColumn() == s.getColumn() + 2) {
-			makeMove(new Position(s.getRow(), s.getColumn() + 3), new Position(s.getRow(), s.getColumn() + 1));	
+		// Roque para direita
+		if (p instanceof King && t.getColumn() == s.getColumn() + 2) {
+			makeMove(new Position(s.getRow(), s.getColumn() + 3), new Position(s.getRow(), s.getColumn() + 1));
 		}
-		//Roque para a esquerda
-		if(p instanceof King && t.getColumn() == s.getColumn() - 2) {
+		// Roque para a esquerda
+		if (p instanceof King && t.getColumn() == s.getColumn() - 2) {
 			makeMove(new Position(s.getRow(), s.getColumn() - 4), new Position(s.getRow(), s.getColumn() - 1));
 		}
-		
-		//Movimento especial en Passant
-		if(p instanceof Pawn) {
-			//testa se o peão andou na diagonal e não capturou peça
-			if(s.getColumn() != t.getColumn() && capturedPieces != null) {
+
+		// Movimento especial en Passant
+		if (p instanceof Pawn) {
+			// testa se o peão andou na diagonal e não capturou peça
+			if (s.getColumn() != t.getColumn() && capturedPieces != null) {
 				Position pawnPosition;
-				//testa se e branco ou preto
-				if(((ChessPiece)p).getColor() == Color.WHITE) {
+				// testa se e branco ou preto
+				if (((ChessPiece) p).getColor() == Color.WHITE) {
 					pawnPosition = new Position(t.getRow() + 1, t.getColumn());
 				} else {
 					pawnPosition = new Position(t.getRow() - 1, t.getColumn());
 				}
-				//adiciona nas peças capturadas, adiciona na lista de peças capturadas e remove do tabuleiro
+				// adiciona nas peças capturadas, adiciona na lista de peças capturadas e remove
+				// do tabuleiro
 				capPiece = board.removePiece(pawnPosition);
 				capturedPieces.add((ChessPiece) capPiece);
 				piecesOnTheBoard.remove(capPiece);
 			}
 		}
-		
+
 		return capPiece;
 	}
 
@@ -282,23 +334,25 @@ public class ChessMatch {
 			capturedPieces.remove(capPiece);
 			piecesOnTheBoard.add((ChessPiece) capPiece);
 		}
-		//Desfaz o roque da direita
-		if(p instanceof King && target.getColumn() == source.getColumn() + 2) {
-			undoMove(new Position(source.getRow(), source.getColumn() + 3), new Position(source.getRow(), source.getColumn() + 1), null);
+		// Desfaz o roque da direita
+		if (p instanceof King && target.getColumn() == source.getColumn() + 2) {
+			undoMove(new Position(source.getRow(), source.getColumn() + 3),
+					new Position(source.getRow(), source.getColumn() + 1), null);
 		}
-		//Desfaz o roque da esquerda
-		if(p instanceof King && target.getColumn() == source.getColumn() - 2) {
-			undoMove(new Position(source.getRow(), source.getColumn() - 4), new Position(source.getRow(), source.getColumn() - 1), null);
+		// Desfaz o roque da esquerda
+		if (p instanceof King && target.getColumn() == source.getColumn() - 2) {
+			undoMove(new Position(source.getRow(), source.getColumn() - 4),
+					new Position(source.getRow(), source.getColumn() - 1), null);
 		}
-		
-		//Movimento especial en Passant
-		if(p instanceof Pawn) {
-			//testa se o peão andou na diagonal e não capturou peça
-			if(source.getColumn() != target.getColumn() && capturedPieces == enPassantVulnerable) {
-				ChessPiece pawn = (ChessPiece)board.removePiece(target);
+
+		// Movimento especial en Passant
+		if (p instanceof Pawn) {
+			// testa se o peão andou na diagonal e não capturou peça
+			if (source.getColumn() != target.getColumn() && capturedPieces == enPassantVulnerable) {
+				ChessPiece pawn = (ChessPiece) board.removePiece(target);
 				Position pawnPosition;
-				//testa se e branco ou preto
-				if(((ChessPiece)p).getColor() == Color.WHITE) {
+				// testa se e branco ou preto
+				if (((ChessPiece) p).getColor() == Color.WHITE) {
 					pawnPosition = new Position(3, target.getColumn());
 				} else {
 					pawnPosition = new Position(4, target.getColumn());
