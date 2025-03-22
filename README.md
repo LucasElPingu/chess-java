@@ -275,7 +275,97 @@ public static void clearScreen() {
 - **Update UI.PrintMatch** (Antes de permitir que o jogador jogue, verifica se não foi cheque-mate, caso seja falso entra no `if` e permite o jogador continuar, `else` imprime cheque-mate)
 - **Update Program logic** (Coloca no enquanto não for cheque-mate... No final limpa a tela e imprime o `printMatch`)
 
+------
 
+## Contagem do movimento das peças
+### Checklist:
+- **Class ChessPiece:**
+  - **Property MoveCount [private set]**
+  - **Method IncreaseMoveCount [internal]** (Aumenta o **count** de movimento daquela peça, vai poder ser usado no peão no movimento inicial)
+  - **Method DecreaseMoveCount [internal]** (Reduz o **count** de movimento daquela peça)
+- **Class ChessMatch:**
+  - **Update MakeMove** (increaseMoveCount)
+  - **Update UndoMove** (decreaseMoveCount)
+
+### OOP Topics:
+- Encapsulation
+
+------
+
+## Pawn
+### Checklist:
+- **Class Pawn**
+- **Update ChessMatch.InitialSetup**
+
+### OOP Topics:
+- Encapsulation
+- Inheritance
+- Polymorphism
+
+------
+
+## Bishop
+### Checklist:
+- **Class Bishop** (Semelhante a torre)
+- **Update ChessMatch.InitialSetup**
+
+### OOP Topics:
+- Encapsulation
+- Inheritance
+- Polymorphism
+
+------
+
+## Knight
+### Checklist:
+- **Class Knight** (Semelhante ao rei, pode ser mover até 8 casas diferente)
+- **Update ChessMatch.InitialSetup**
+
+### OOP Topics:
+- Encapsulation
+- Inheritance
+- Polymorphism
+
+------
+
+## Queen
+### Checklist:
+- **Class Queen** (Torre + bispo)
+- **Update ChessMatch.InitialSetup**
+
+### OOP Topics:
+- Encapsulation
+- Inheritance
+- Polymorphism
+
+------
+
+## Movimento roque
+### Checklist:
+- **Update King** (Usa o método **increaseMoveCount**, pois para fazer o roque uma torre e o rei não podem ter feito nenhum movimento)
+- **Update ChessMatch.MakeMove** (Caso o rei tenha feito o movimento para o roque, movimenta a torre para o lado do rei para concluir a jogada)
+- **Update ChessMatch.UndoMove** (Desfaz o roque)
+
+------
+
+## Jogada especial En Passant
+### Checklist:
+- **Register a pawn which can be captured by en passant on next turn** (Colocar o peão que andou duas casa como **suscetível** a **en passant**)
+  - **Property ChessMatch.EnPassantVulnerable** (Faz o peão ficar vulnerável ao en passant)
+  - **Update ChessMatch.PerformChessMove** (Adiciona a lógica do en passant)
+- **Update Pawn.PossibleMoves**
+- **Update ChessMatch.MakeMove**
+- **Update ChessMatch.UndoMove**
+- **Update ChessMatch.InitialSetup**
+
+------
+
+## Promoção do peão
+### Checklist:
+- **Property ChessMatch.Promoted**
+- **Update ChessMatch.PerformChessMove** (Adiciona a lógica de promoção)
+- **Method ChessMatch.ReplacePromotedPiece** (Verifica se tem alguma peça para promover e promove ela)
+- **Update Program logic**
 
 ------
 ------
