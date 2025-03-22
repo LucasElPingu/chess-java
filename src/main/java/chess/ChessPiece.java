@@ -10,14 +10,15 @@ public abstract class ChessPiece extends Piece {
 	private int moveCount;
 
 	public ChessPiece(Board board, Color color) {
-		super(board); //repassa a chamda para o construtor da super classe
+		super(board); // repassa a chamda para o construtor da super classe
 		this.color = color;
 	}
 
-	//A cor da peça não pode ser modificada
+	// A cor da peça não pode ser modificada
 	public Color getColor() {
 		return color;
 	}
+
 	public int getMoveCount() {
 		return moveCount;
 	}
@@ -26,15 +27,15 @@ public abstract class ChessPiece extends Piece {
 		ChessPiece p = (ChessPiece) getBoard().piece(position);
 		return p != null && p.getColor() != color;
 	}
-	
+
 	public ChessPosition getChessPosition() {
 		return ChessPosition.fromPosition(position);
 	}
-	
+
 	protected void increaseMoveCount() {
 		moveCount++;
 	}
-	
+
 	protected void decreaseMoveCount() {
 		moveCount--;
 	}

@@ -4,7 +4,6 @@ import boardgame.Board;
 import boardgame.Position;
 import chess.ChessPiece;
 import chess.Color;
-import chess.Icons;
 
 public class Queen extends ChessPiece {
 

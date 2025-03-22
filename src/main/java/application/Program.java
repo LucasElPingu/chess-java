@@ -13,11 +13,11 @@ import chess.ChessPosition;
 public class Program {
 
 	public static void main(String[] args) {
-		System.setProperty("file.encoding", "UTF-8");
 
 		Scanner sc = new Scanner(System.in);
 		ChessMatch cm = new ChessMatch();
 		List<ChessPiece> captured = new ArrayList<>();
+
 		// enquanto n der cheque-mate a partida continua
 		while (!cm.getCheckMate()) {
 			try {
@@ -25,12 +25,12 @@ public class Program {
 				UI.printMatch(cm, captured);
 				System.out.println("\nSource: ");
 				ChessPosition source = UI.readChessPosition(sc);
+
 				// vai armazenar os possiveis movimentos para serem passados como argumento no
 				// printBoard
 				boolean[][] possibleMoves = cm.possibleMoves(source);
 				UI.clearScreen();
 				UI.printBoard(cm.getPieces(), possibleMoves);
-
 				System.out.println("\nTarget: ");
 				ChessPosition target = UI.readChessPosition(sc);
 
@@ -48,6 +48,7 @@ public class Program {
 						System.out.print("\033[F\033[K"); // Limpa a linha anterior também (caso precise)
 						System.out.println("Valor Inválido");
 						sc.nextLine();
+
 						System.out.print("\033[F\033[K");
 						System.out.print("\033[F\033[K");
 						System.out.print("Digite para qual peça deseja promover (T/C/B/Q): ");

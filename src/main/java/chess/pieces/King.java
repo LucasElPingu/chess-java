@@ -9,13 +9,11 @@ import chess.Color;
 public class King extends ChessPiece {
 
 	private ChessMatch chessMatch;
-	
+
 	public King(Board board, Color color, ChessMatch chessMatch) {
 		super(board, color);
 		this.chessMatch = chessMatch;
 	}
-
-	
 
 	// Retorna se o rei pode mover dada uma determinada posição
 	private boolean canMove(Position position) {
@@ -24,10 +22,10 @@ public class King extends ChessPiece {
 		ChessPiece p = (ChessPiece) getBoard().piece(position);
 		return p == null || p.getColor() != getColor();
 	}
-	
-	//testa se tem alguma torre apta para o roque
+
+	// testa se tem alguma torre apta para o roque
 	private boolean testRookCastling(Position position) {
-		ChessPiece p = (ChessPiece)getBoard().piece(position);
+		ChessPiece p = (ChessPiece) getBoard().piece(position);
 		return p != null && p instanceof Rook && p.getColor() == getColor() && p.getMoveCount() == 0;
 	}
 
@@ -37,7 +35,8 @@ public class King extends ChessPiece {
 
 		Position p = new Position(0, 0);
 		// Acima
-		// Posição do rei get row - 1 e posição da coluna, sempre verificar se a posição existe
+		// Posição do rei get row - 1 e posição da coluna, sempre verificar se a posição
+		// existe
 		p.setValue(position.getRow() - 1, position.getColumn());
 		if (getBoard().positionExists(p) && canMove(p)) {
 			mat[p.getRow()][p.getColumn()] = true;
@@ -78,23 +77,23 @@ public class King extends ChessPiece {
 			mat[p.getRow()][p.getColumn()] = true;
 		}
 		// Pode fazer o roque
-		if(getMoveCount() == 0 && !chessMatch.getCheck()) {
-			//roque para direita
+		if (getMoveCount() == 0 && !chessMatch.getCheck()) {
+			// roque para direita
 			Position positionT1 = new Position(position.getRow(), position.getColumn() + 3);
-			if(testRookCastling(positionT1)) {
+			if (testRookCastling(positionT1)) {
 				Position p1 = new Position(position.getRow(), position.getColumn() + 1);
 				Position p2 = new Position(position.getRow(), position.getColumn() + 2);
-				if(getBoard().piece(p1) == null && getBoard().piece(p2) == null) {
+				if (getBoard().piece(p1) == null && getBoard().piece(p2) == null) {
 					mat[position.getRow()][position.getColumn() + 2] = true;
 				}
 			}
-			//roque para esquerda
+			// roque para esquerda
 			Position positionT2 = new Position(position.getRow(), position.getColumn() - 4);
-			if(testRookCastling(positionT2)) {
+			if (testRookCastling(positionT2)) {
 				Position p1 = new Position(position.getRow(), position.getColumn() - 1);
 				Position p2 = new Position(position.getRow(), position.getColumn() - 2);
 				Position p3 = new Position(position.getRow(), position.getColumn() - 3);
-				if(getBoard().piece(p1) == null && getBoard().piece(p2) == null && getBoard().piece(p3) == null) {
+				if (getBoard().piece(p1) == null && getBoard().piece(p2) == null && getBoard().piece(p3) == null) {
 					mat[position.getRow()][position.getColumn() - 2] = true;
 				}
 			}
@@ -102,7 +101,7 @@ public class King extends ChessPiece {
 
 		return mat;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "R";

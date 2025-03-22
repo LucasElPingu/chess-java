@@ -56,7 +56,7 @@ public class Rook extends ChessPiece {
 
 		return mat;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "T"; // retorna a letra q aparecera no tabuleiro

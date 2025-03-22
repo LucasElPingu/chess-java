@@ -1,7 +1,5 @@
 package chess;
 
-import java.nio.channels.Pipe.SourceChannel;
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -240,8 +238,7 @@ public class ChessMatch {
 		}
 		// Checar se foi um peão que moveu duas casas para ficar vulnerável ao en
 		// passant
-		if (movedPiece instanceof Pawn
-				&& (t.getRow() == s.getRow() - 2 || (t.getRow() == s.getRow() + 2))) {
+		if (movedPiece instanceof Pawn && (t.getRow() == s.getRow() - 2 || (t.getRow() == s.getRow() + 2))) {
 			enPassantVulnerable = movedPiece;
 		} else {
 			enPassantVulnerable = null;
@@ -250,7 +247,7 @@ public class ChessMatch {
 		return (ChessPiece) capturedPiece;
 	}
 
-	//promoção
+	// promoção
 	public ChessPiece replacePromotedPiece(String type) {
 		if (promoted == null) {
 			throw new IllegalStateException("Não há peça a ser promovida");
@@ -258,14 +255,15 @@ public class ChessMatch {
 		if (!type.equals("B") && !type.equals("C") && !type.equals("T") && !type.equals("Q")) {
 			return promoted;
 		}
-		//Cria uma variável de posição pos e armazena a posição do peão que sera removido
+		// Cria uma variável de posição pos e armazena a posição do peão que sera
+		// removido
 		Position pos = promoted.getChessPosition().toPosition();
-		//remove o peão
+		// remove o peão
 		Piece p = board.removePiece(pos);
 		piecesOnTheBoard.remove(p);
-		//A nova peça que será colocada no lugar do peão
+		// A nova peça que será colocada no lugar do peão
 		ChessPiece newPiece = newPiece(type, promoted.getColor());
-		//coloca a peça na posição
+		// coloca a peça na posição
 		board.placePiece(newPiece, pos);
 		piecesOnTheBoard.add(newPiece);
 		return newPiece;
@@ -280,7 +278,7 @@ public class ChessMatch {
 			return new Knight(board, color);
 		if (type.equals("T"))
 			return new Rook(board, color);
-			return new Queen(board, color);
+		return new Queen(board, color);
 	}
 
 	// Faz o movimento da peça removendo uma posivel peça na posição de destino

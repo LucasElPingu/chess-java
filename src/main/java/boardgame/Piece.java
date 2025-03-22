@@ -13,7 +13,7 @@ public abstract class Piece {
 		return board;
 	}
 
-	//A lógica de cada peça e diferente das possibilidades de movimento
+	// A lógica de cada peça e diferente das possibilidades de movimento
 	public abstract boolean[][] possibleMoves();
 
 	public boolean possibleMove(Position position) {

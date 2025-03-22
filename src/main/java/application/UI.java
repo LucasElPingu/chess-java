@@ -3,7 +3,6 @@ package application;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import chess.ChessMatch;
@@ -14,7 +13,7 @@ import chess.Color;
 public class UI {
 
 	// https://stackoverflow.com/questions/5762491/how-to-print-color-in-console-using-system-out-println
-
+	// cores
 	public static final String ANSI_RESET = "\u001B[0m";
 	public static final String ANSI_BLACK = "\u001B[30m";
 	public static final String ANSI_RED = "\u001B[31m";
@@ -24,7 +23,7 @@ public class UI {
 	public static final String ANSI_PURPLE = "\u001B[35m";
 	public static final String ANSI_CYAN = "\u001B[36m";
 	public static final String ANSI_WHITE = "\u001B[37m";
-
+	// cores de fundo
 	public static final String ANSI_BLACK_BACKGROUND = "\u001B[40m";
 	public static final String ANSI_RED_BACKGROUND = "\u001B[41m";
 	public static final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
@@ -46,18 +45,18 @@ public class UI {
 		}
 	}
 
-	public static void printMatch(ChessMatch chessMatch, List<ChessPiece>captured) {
+	public static void printMatch(ChessMatch chessMatch, List<ChessPiece> captured) {
 		printBoard(chessMatch.getPieces());
 		printCapturedPieces(captured, chessMatch);
 		System.out.println("\nTurn: " + chessMatch.getTurn());
-		//checa se não foi cheque-mate, se for true, entra no if
-		if(!chessMatch.getCheckMate()) {
+		// checa se não foi cheque-mate, se for true, entra no if
+		if (!chessMatch.getCheckMate()) {
 			System.out.println("Esperando o player: " + chessMatch.getCurrentPlayer());
-			//chama toda a lógica de check pelo getCheck
-			if(chessMatch.getCheck()) {
+			// chama toda a lógica de check pelo getCheck
+			if (chessMatch.getCheck()) {
 				System.out.println("CHECK!");
 			}
-		}else { //se for false, imprime na tela
+		} else { // se for false, imprime na tela
 			System.out.println("CHECKMATE");
 			System.out.println("VENCENDOR: " + chessMatch.getCurrentPlayer());
 		}
@@ -115,9 +114,11 @@ public class UI {
 				.collect(Collectors.toList());
 		System.out.println("\nPeças capturadas: ");
 		if (chessMatch.getCurrentPlayer() == Color.BLACK)
-			//A lista armazena as peças brancas capturadas
-			System.out.println("Brancas: [" + white.stream().map(Object::toString).collect(Collectors.joining(", ")) + "]");
+			// A lista armazena as peças brancas capturadas
+			System.out.println(
+					"Brancas: [" + white.stream().map(Object::toString).collect(Collectors.joining(", ")) + "]");
 		else
-			System.out.println("Pretas: [" + black.stream().map(Object::toString).collect(Collectors.joining(", ")) + "]");
+			System.out.println(
+					"Pretas: [" + black.stream().map(Object::toString).collect(Collectors.joining(", ")) + "]");
 	}
 }
