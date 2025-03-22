@@ -367,18 +367,3 @@ public static void clearScreen() {
 - **Method ChessMatch.ReplacePromotedPiece** (Verifica se tem alguma peça para promover e promove ela)
 - **Update Program logic**
 
-------
-------
-------
-------
-------
-------
-------
-------
-------
-------
-------
-------
-------
-------
-------
