@@ -24,6 +24,8 @@ public class ChessMatch {
 	private boolean checkMate;
 	private ChessPiece enPassantVulnerable;
 	private ChessPiece promoted;
+	private boolean jogadaValida;
+	private boolean stalemate;
 
 	private List<ChessPiece> piecesOnTheBoard = new ArrayList<>();
 	private List<ChessPiece> capturedPieces = new ArrayList<>();
@@ -33,7 +35,14 @@ public class ChessMatch {
 		turn = 1; // inicia no 1 a partida e as brancas começam
 		currentPlayer = Color.WHITE;
 		initialSetup(); // Para ser criado na hora que a partida for criada
+	}
 
+	public boolean getJogadaValida() {
+		return jogadaValida;
+	}
+	
+	public boolean getStalemate() {
+		return stalemate;
 	}
 
 	public int getTurn() {
@@ -154,6 +163,38 @@ public class ChessMatch {
 		// se todos os ifs falharem e pq e checkmate
 		return true;
 	}
+	
+	private boolean testStalement(Color color) {
+		 // Se o jogador está em cheque, não é afogamento
+	    if (testCheck(color)) {
+	        return false;
+	    }
+
+	   //pega todas as peças da cor
+	    List<Piece> list = piecesOnTheBoard.stream()
+	        .filter(x -> ((ChessPiece) x).getColor() == color)
+	        .collect(Collectors.toList());
+	    // Verifica se há algum movimento possível que não deixe o jogador em cheque
+	    for (Piece p : list) {
+	        boolean[][] mat = p.possibleMoves();
+	        for (int i = 0; i < board.getRows(); i++) {
+	            for (int j = 0; j < board.getColumns(); j++) {
+	                if (mat[i][j]) {
+	                    Position source = ((ChessPiece) p).getChessPosition().toPosition();
+	                    Position target = new Position(i, j);
+	                    Piece capturedPiece = makeMove(source, target);
+	                    boolean isStillInCheck = testCheck(color);
+	                    undoMove(source, target, capturedPiece);
+	                    if (!isStillInCheck) {
+	                        return false;
+	                    }
+	                }
+	            }
+	        }
+	    }
+
+	    return true; // Não está em cheque e não tem movimentos válidos = afogamento
+	}
 
 	// responsavel por iniciar a partida de xadrez colocando as peças no tabuleiro
 	private void initialSetup() {
@@ -233,6 +274,9 @@ public class ChessMatch {
 		// se o oponente da peça que mexeu ficou em xeque-mate acabou o game
 		if (testCheckMate(opponent(currentPlayer))) {
 			checkMate = true;
+		} else if (testStalement(currentPlayer)) {
+			//testa se afogou
+			stalemate = true;
 		} else {
 			nextTurn();
 		}
@@ -355,6 +399,7 @@ public class ChessMatch {
 				} else {
 					pawnPosition = new Position(4, target.getColumn());
 				}
+
 				board.placePiece(pawn, pawnPosition);
 			}
 		}
@@ -379,6 +424,60 @@ public class ChessMatch {
 	private void validateTargetPosition(Position s, Position t) {
 		if (!board.piece(s).possibleMove(t)) {
 			throw new ChessException("A peça escolhida não pode se mover para a posição de destino");
+		}
+	}
+
+	protected Piece makeMoveAI(Position source, Position target) {
+		jogadaValida = true;
+		Piece capturedPiece = makeMove(source, target);
+		//testa se o rei esta em check
+		if (testCheck(currentPlayer)) {
+			undoMove(source, target, capturedPiece);
+			jogadaValida = false;
+		}
+		ChessPiece movedPiece = (ChessPiece) board.piece(target);
+
+		promoted = null;
+		if (movedPiece instanceof Pawn) {
+			if (movedPiece.getColor() == Color.BLACK && target.getRow() == 7) {
+				promoted = (ChessPiece) board.piece(target);
+				/*
+				 * Começa trocando pela rainha, pois fica mais facil, depois troca pela peça que
+				 * o user escolher
+				 */
+				promoted = replacePromotedPiece("Q");
+			}
+		}
+
+		// testa se o oponente esta em check
+		check = (testCheck(opponent(currentPlayer))) ? true : false;
+
+		// se o oponente da peça que mexeu ficou em xeque-mate acabou o game
+		if (testCheckMate(opponent(currentPlayer))) {
+			checkMate = true;
+		}
+
+		// Checar se foi um peão que moveu duas casas para ficar vulnerável ao en
+		// passant
+		if (movedPiece instanceof Pawn
+				&& (target.getRow() == source.getRow() - 2 || (target.getRow() == source.getRow() + 2))) {
+			enPassantVulnerable = movedPiece;
+		} else {
+			enPassantVulnerable = null;
+		}
+
+		return capturedPiece;
+	}
+
+	protected void undoMoveAI(Position souce, Position target, Piece capturedPiece) {
+		undoMove(souce, target, capturedPiece);
+		/*
+		 * o undoMoveAI e usado nos testes para encontrar o melhor movimento, então tudo
+		 * deve voltar como era antes
+		 */
+		check = (testCheck(opponent(currentPlayer))) ? true : false;
+		if (!testCheckMate(opponent(currentPlayer))) {
+			checkMate = false;
 		}
 	}
 

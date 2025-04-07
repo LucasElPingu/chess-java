@@ -56,6 +56,8 @@ public class UI {
 			if (chessMatch.getCheck()) {
 				System.out.println("CHECK!");
 			}
+		} else if (chessMatch.getStalemate()) {
+			System.out.println("EMPATE!!!");
 		} else { // se for false, imprime na tela
 			System.out.println("CHECKMATE");
 			System.out.println("VENCENDOR: " + chessMatch.getCurrentPlayer());
