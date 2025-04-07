@@ -19,7 +19,7 @@ public class Program {
 		List<ChessPiece> captured = new ArrayList<>();
 
 		// enquanto n der cheque-mate a partida continua
-		while (!cm.getCheckMate()) {
+		while (!cm.getCheckMate() && !cm.getStalemate()) {
 			try {
 				UI.clearScreen();
 				UI.printMatch(cm, captured);
@@ -63,7 +63,6 @@ public class Program {
 				System.out.println(e.getMessage());
 				sc.nextLine();
 			}
-
 		}
 		UI.clearScreen();
 		UI.printMatch(cm, captured);

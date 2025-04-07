@@ -48,20 +48,24 @@ public class UI {
 	public static void printMatch(ChessMatch chessMatch, List<ChessPiece> captured) {
 		printBoard(chessMatch.getPieces());
 		printCapturedPieces(captured, chessMatch);
+		Scanner await = new Scanner(System.in);
 		System.out.println("\nTurn: " + chessMatch.getTurn());
 		// checa se não foi cheque-mate, se for true, entra no if
-		if (!chessMatch.getCheckMate()) {
+		if (chessMatch.getCheckMate()) {
+			System.out.println("CHECKMATE");
+			System.out.println("VENCENDOR: " + chessMatch.getCurrentPlayer());
+			await.nextLine();
+		} else if (chessMatch.getStalemate()) {
+			System.out.println("EMPATE!!!");
+			await.nextLine();
+		} else { // se for false, imprime na tela
 			System.out.println("Esperando o player: " + chessMatch.getCurrentPlayer());
+		}
 			// chama toda a lógica de check pelo getCheck
 			if (chessMatch.getCheck()) {
 				System.out.println("CHECK!");
 			}
-		} else if (chessMatch.getStalemate()) {
-			System.out.println("EMPATE!!!");
-		} else { // se for false, imprime na tela
-			System.out.println("CHECKMATE");
-			System.out.println("VENCENDOR: " + chessMatch.getCurrentPlayer());
-		}
+
 
 	}
 
