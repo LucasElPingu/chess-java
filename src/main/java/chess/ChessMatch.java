@@ -121,20 +121,25 @@ public class ChessMatch {
 	// testa se o rei esta em check percorrendo uma lista com todas as peças do
 	// oponente e verificando se essa peça pode se mover para a casa do rei
 	private boolean testCheck(Color color) {
+		try {
 		// pega a posição do rei em formato de matriz
 		Position kingPosition = king(color).getChessPosition().toPosition();
 		// Cria uma lista com todas as peças do oponente
 		List<Piece> opponentPiece = piecesOnTheBoard.stream()
 				.filter(x -> ((ChessPiece) x).getColor() == opponent(color)).collect(Collectors.toList());
-		// for para percorrer a lista de peças do oponente
-		for (Piece p : opponentPiece) {
-			// cria uma matriz de boolean que recebe uma matriz com todos os possiveis
-			// movimentos daquela peça
-			boolean[][] mat = p.possibleMoves();
-			// verifica se aquela peça pode se mover para a casa do rei
-			if (mat[kingPosition.getRow()][kingPosition.getColumn()]) {
-				return true;
+		
+			// for para percorrer a lista de peças do oponente
+			for (Piece p : opponentPiece) {
+				// cria uma matriz de boolean que recebe uma matriz com todos os possiveis
+				// movimentos daquela peça
+				boolean[][] mat = p.possibleMoves();
+				// verifica se aquela peça pode se mover para a casa do rei
+				if (mat[kingPosition.getRow()][kingPosition.getColumn()]) {
+					return true;
+				}
 			}
+		} catch (NullPointerException e) {
+			e.printStackTrace();
 		}
 		return false;
 	}
@@ -465,9 +470,8 @@ public class ChessMatch {
 		jogadaValida = false;
 
 		Piece p = board.removePiece(source);
-		Piece capPiece = null;
 
-		capPiece = board.removePiece(target);
+		Piece capPiece = board.removePiece(target);
 
 		board.placePiece(p, target);
 
@@ -508,7 +512,7 @@ public class ChessMatch {
 			}
 		}
 		// testa se o rei esta em check
-		if (testCheck(currentPlayer)) {
+		if (testCheck(color)) {
 			undoMove(source, target, capPiece);
 			return null;
 		}
@@ -525,13 +529,13 @@ public class ChessMatch {
 				promoted = replacePromotedPiece("Q");
 			}
 		}
-		// testa se o oponente esta em check
-		check = (testCheck(opponent(color))) ? true : false;
-
-		// se o oponente da peça que mexeu ficou em xeque-mate acabou o game
-		if (testCheckMate(opponent(color))) {
-			checkMate = true;
-		}
+//		// testa se o oponente esta em check
+//		check = (testCheck(opponent(color))) ? true : false;
+//
+//		// se o oponente da peça que mexeu ficou em xeque-mate acabou o game
+//		if (testCheckMate(opponent(color))) {
+//			checkMate = true;
+//		}
 
 		// Checar se foi um peão que moveu duas casas para ficar vulnerável ao en
 		// passant
@@ -613,10 +617,10 @@ public class ChessMatch {
 				 * o undoMoveAI e usado nos testes para encontrar o melhor movimento, então tudo
 				 * deve voltar como era antes
 				 */
-				check = (testCheck(opponent(currentPlayer))) ? true : false;
-				if (!testCheckMate(opponent(currentPlayer))) {
-					checkMate = false;
-				}
+//				check = (testCheck(opponent(currentPlayer))) ? true : false;
+//				if (!testCheckMate(opponent(currentPlayer))) {
+//					checkMate = false;
+//				}
 				currentPlayer = opponent(currentPlayer);
 			}
 		} catch (NullPointerException e) {

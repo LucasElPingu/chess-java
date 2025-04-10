@@ -41,7 +41,6 @@ public class ChessAI {
 			for (int i = 0; i < board.getRows(); i++) {
 				for (int j = 0; j < board.getColumns(); j++) {
 
-
 					Position source = ((ChessPiece) piece).getChessPosition().toPosition();
 					Position target = new Position(i, j);
 					if (possiblePieceMove[i][j]) {
