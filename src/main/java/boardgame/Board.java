@@ -39,12 +39,19 @@ public class Board {
 		return pieces[position.getRow()][position.getColumn()];
 	}
 
-	public void placePiece(Piece piece, Position positon) { // responsavel por mover a peça inicialmente
-		if (thereIsAPiece(positon)) {
-			throw new BoardException("Erro: Posição inválida, já possui uma peça na posição " + positon);
+	public void placePiece(Piece piece, Position position) { // responsavel por mover a peça inicialmente
+		if (thereIsAPiece(position)) {
+			throw new BoardException("Erro: Posição inválida, já possui uma peça na posição " + position);
 		}
-		pieces[positon.getRow()][positon.getColumn()] = piece; // atribui uma nova posição a peça
-		piece.position = positon; // Tira da posição anterior
+		if(piece == null) {
+			throw new BoardException("Erro: peça nula!");
+		}
+		if(position == null) {
+			throw new BoardException("Erro: posição nula!");
+		}
+		
+		pieces[position.getRow()][position.getColumn()] = piece; // atribui uma nova posição a peça
+		piece.position = position; // Tira da posição anterior
 	}
 
 	public boolean positionExists(Position position) {
@@ -66,11 +73,12 @@ public class Board {
 		if (!positionExists(position)) {
 			throw new BoardException("Erro: Posição inexistente");
 		}
-		if (piece(position) == null)
-			return null;
+	    if (!thereIsAPiece(position)) {
+	        return null; // Não há peça para remover
+	    }
+		
 		Piece aux = piece(position);
-		aux.position = null;
-		pieces[position.getRow()][position.getColumn()] = null;
+		pieces[position.getRow()][position.getColumn()] = null; // Remove a peça do tabuleiro
 		return aux;
 	}
 }

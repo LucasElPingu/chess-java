@@ -36,7 +36,9 @@ public class ChessAI {
 		// percorre todas as peças pretas
 		for (ChessPiece piece : allBlack) {
 			// pega todos os movimentos possiveis da piece
+			System.err.println("Peça: " + piece + " Posição: " + ((ChessPiece)piece).getChessPosition().toPosition());
 			boolean[][] possiblePieceMove = piece.possibleMoves();
+			
 			// percorre todo o tabuleiro testando as jogadas possiveis
 			for (int i = 0; i < board.getRows(); i++) {
 				for (int j = 0; j < board.getColumns(); j++) {

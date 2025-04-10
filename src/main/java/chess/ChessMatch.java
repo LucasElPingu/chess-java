@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import application.UI;
 import boardgame.Board;
+import boardgame.BoardException;
 import boardgame.Piece;
 import boardgame.Position;
 import chess.pieces.Bishop;
@@ -121,9 +121,10 @@ public class ChessMatch {
 	// testa se o rei esta em check percorrendo uma lista com todas as peças do
 	// oponente e verificando se essa peça pode se mover para a casa do rei
 	private boolean testCheck(Color color) {
-		try {
+//		try {
 		// pega a posição do rei em formato de matriz
 		Position kingPosition = king(color).getChessPosition().toPosition();
+		if(kingPosition != null) {
 		// Cria uma lista com todas as peças do oponente
 		List<Piece> opponentPiece = piecesOnTheBoard.stream()
 				.filter(x -> ((ChessPiece) x).getColor() == opponent(color)).collect(Collectors.toList());
@@ -138,9 +139,12 @@ public class ChessMatch {
 					return true;
 				}
 			}
-		} catch (NullPointerException e) {
-			e.printStackTrace();
+		} else {
+			System.err.println("Posição do rei esta vázia!!!");
 		}
+//		} catch (NullPointerException e) {
+//			e.printStackTrace();
+//		}
 		return false;
 	}
 
@@ -468,17 +472,22 @@ public class ChessMatch {
 
 	protected Piece makeMoveAI(Position source, Position target, Color color) {
 		jogadaValida = false;
-
+		Piece capPiece = null;
+		
 		Piece p = board.removePiece(source);
-
-		Piece capPiece = board.removePiece(target);
+		if (p == null) {
+		    throw new BoardException("Erro: Tentativa de mover uma peça de uma posição vazia " + source);
+		}
+		
+		if(board.thereIsAPiece(target)) {
+		capPiece = board.removePiece(target);
+		piecesOnTheBoard.remove(capPiece);
+		capturedPieces.add((ChessPiece) capPiece);
+		}
 
 		board.placePiece(p, target);
+		
 
-		if (capPiece != null) {
-			piecesOnTheBoard.remove(capPiece);
-			capturedPieces.add((ChessPiece) capPiece);
-		}
 		// Roque para direita
 		if (p instanceof King && target.getColumn() == source.getColumn() + 2) {
 			makeMove(new Position(source.getRow(), source.getColumn() + 3),
@@ -563,36 +572,46 @@ public class ChessMatch {
 
 				// Desfaz o roque da direita
 				if (p instanceof King && undoMoveFrom.getValue().getTarget()
-						.getColumn() == undoMoveFrom.getValue().getSource().getColumn() + 2) {
-					p = board.removePiece(new Position(undoMoveFrom.getValue().getSource().getRow(),
-							undoMoveFrom.getValue().getSource().getColumn() + 1));
-					board.placePiece(p, new Position(undoMoveFrom.getValue().getSource().getRow(),
-							undoMoveFrom.getValue().getSource().getColumn() + 3));
+				        .getColumn() == undoMoveFrom.getValue().getSource().getColumn() + 2) {
 
-					if (p != null) {
-						board.placePiece(p, undoMoveFrom.getValue().getTarget());
-						piecesOnTheBoard.add((ChessPiece) undoMoveFrom.getKey());
-					}
+				    handleCastling(
+				        new Position(
+				            undoMoveFrom.getValue().getSource().getRow(),
+				            undoMoveFrom.getValue().getSource().getColumn() - 4
+				        ),
+				        new Position(
+				            undoMoveFrom.getValue().getSource().getRow(),
+				            undoMoveFrom.getValue().getSource().getColumn() - 1
+				        ),
+				        check
+				    );
+
+				    if (p != null) {
+				        board.placePiece(p, undoMoveFrom.getValue().getTarget());
+				        piecesOnTheBoard.add((ChessPiece) undoMoveFrom.getKey());
+				    }
 				}
+
 				// Desfaz o roque da esquerda
 				if (p instanceof King && undoMoveFrom.getValue().getTarget()
-						.getColumn() == undoMoveFrom.getValue().getSource().getColumn() - 2) {
-					undoMove(
-							new Position(undoMoveFrom.getValue().getSource().getRow(),
-									undoMoveFrom.getValue().getSource().getColumn() - 4),
-							new Position(undoMoveFrom.getValue().getSource().getRow(),
-									undoMoveFrom.getValue().getSource().getColumn() - 1),
-							null);
+				        .getColumn() == undoMoveFrom.getValue().getSource().getColumn() - 2) {
 
-					p = board.removePiece(new Position(undoMoveFrom.getValue().getSource().getRow(),
-							undoMoveFrom.getValue().getSource().getColumn() - 1));
-					board.placePiece(p, new Position(undoMoveFrom.getValue().getSource().getRow(),
-							undoMoveFrom.getValue().getSource().getColumn() - 4));
+				    handleCastling(
+				        new Position(
+				            undoMoveFrom.getValue().getSource().getRow(),
+				            undoMoveFrom.getValue().getSource().getColumn() - 1
+				        ),
+				        new Position(
+				            undoMoveFrom.getValue().getSource().getRow(),
+				            undoMoveFrom.getValue().getSource().getColumn() - 4
+				        ),
+				        check
+				    );
 
-					if (p != null) {
-						board.placePiece(p, undoMoveFrom.getValue().getTarget());
-						piecesOnTheBoard.add((ChessPiece) undoMoveFrom.getKey());
-					}
+				    if (p != null) {
+				        board.placePiece(p, undoMoveFrom.getValue().getTarget());
+				        piecesOnTheBoard.add((ChessPiece) undoMoveFrom.getKey());
+				    }
 				}
 
 				// Movimento especial en Passant
@@ -628,6 +647,28 @@ public class ChessMatch {
 		}
 		pieceToReverse.clear();
 		currentPlayer = Color.BLACK;
+	}
+	
+	private void handleCastling(Position source, Position target, boolean isUndo) {
+	    if (target.getColumn() == source.getColumn() + 2) {
+	        // Roque para a direita
+	        Position rookSource = new Position(source.getRow(), source.getColumn() + 3);
+	        Position rookTarget = new Position(source.getRow(), source.getColumn() + 1);
+	        if (isUndo) {
+	            undoMove(rookSource, rookTarget, null);
+	        } else {
+	            makeMove(rookSource, rookTarget);
+	        }
+	    } else if (target.getColumn() == source.getColumn() - 2) {
+	        // Roque para a esquerda
+	        Position rookSource = new Position(source.getRow(), source.getColumn() - 4);
+	        Position rookTarget = new Position(source.getRow(), source.getColumn() - 1);
+	        if (isUndo) {
+	            undoMove(rookSource, rookTarget, null);
+	        } else {
+	            makeMove(rookSource, rookTarget);
+	        }
+	    }
 	}
 
 	private void nextTurn() {
