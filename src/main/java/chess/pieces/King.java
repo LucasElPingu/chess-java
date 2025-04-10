@@ -1,6 +1,7 @@
 package chess.pieces;
 
 import boardgame.Board;
+import boardgame.BoardException;
 import boardgame.Position;
 import chess.ChessMatch;
 import chess.ChessPiece;
@@ -26,6 +27,10 @@ public class King extends ChessPiece {
 
 	// testa se tem alguma torre apta para o roque
 	private boolean testRookCastling(Position position) {
+		if (!getBoard().positionExists(position)) { 
+			return false;
+		}
+		
 		ChessPiece p = (ChessPiece) getBoard().piece(position);
 		return p != null && p instanceof Rook && p.getColor() == getColor() && p.getMoveCount() == 0;
 	}

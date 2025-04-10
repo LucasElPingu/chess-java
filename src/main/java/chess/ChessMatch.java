@@ -1,9 +1,13 @@
 package chess;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import application.UI;
 import boardgame.Board;
 import boardgame.Piece;
 import boardgame.Position;
@@ -26,6 +30,8 @@ public class ChessMatch {
 	private ChessPiece promoted;
 	private boolean jogadaValida;
 	private boolean stalemate;
+	private ChessAI ai;
+	private List<Map.Entry<Piece, ChessMove>> pieceToReverse = new ArrayList<>();
 
 	private List<ChessPiece> piecesOnTheBoard = new ArrayList<>();
 	private List<ChessPiece> capturedPieces = new ArrayList<>();
@@ -35,12 +41,13 @@ public class ChessMatch {
 		turn = 1; // inicia no 1 a partida e as brancas começam
 		currentPlayer = Color.WHITE;
 		initialSetup(); // Para ser criado na hora que a partida for criada
+		ai = new ChessAI();
 	}
 
 	public boolean getJogadaValida() {
 		return jogadaValida;
 	}
-	
+
 	public boolean getStalemate() {
 		return stalemate;
 	}
@@ -67,6 +74,10 @@ public class ChessMatch {
 
 	public ChessPiece getEnPassantVulnerable() {
 		return enPassantVulnerable;
+	}
+
+	public List<ChessPiece> getPiecesOnTheBoard() {
+		return piecesOnTheBoard;
 	}
 
 	// retorna a matriz de peças da partida de xadrez
@@ -163,32 +174,31 @@ public class ChessMatch {
 		// se todos os ifs falharem e pq e checkmate
 		return true;
 	}
-	
-	private boolean testStalement(Color color) {
-	   //pega todas as peças da cor
-	    List<Piece> list = piecesOnTheBoard.stream()
-	        .filter(x -> ((ChessPiece) x).getColor() == color)
-	        .collect(Collectors.toList());
-	    // Verifica se há algum movimento possível que não deixe o jogador em cheque
-	    for (Piece p : list) {
-	        boolean[][] mat = p.possibleMoves();
-	        for (int i = 0; i < board.getRows(); i++) {
-	            for (int j = 0; j < board.getColumns(); j++) {
-	                if (mat[i][j]) {
-	                    Position source = ((ChessPiece) p).getChessPosition().toPosition();
-	                    Position target = new Position(i, j);
-	                    Piece capturedPiece = makeMove(source, target);
-	                    boolean isStillInCheck = testCheck(color);
-	                    undoMove(source, target, capturedPiece);
-	                    if (!isStillInCheck) {
-	                        return false;
-	                    }
-	                }
-	            }
-	        }
-	    }
 
-	    return true; // Não está em cheque e não tem movimentos válidos = afogamento
+	private boolean testStalement(Color color) {
+		// pega todas as peças da cor
+		List<Piece> list = piecesOnTheBoard.stream().filter(x -> ((ChessPiece) x).getColor() == color)
+				.collect(Collectors.toList());
+		// Verifica se há algum movimento possível que não deixe o jogador em cheque
+		for (Piece p : list) {
+			boolean[][] mat = p.possibleMoves();
+			for (int i = 0; i < board.getRows(); i++) {
+				for (int j = 0; j < board.getColumns(); j++) {
+					if (mat[i][j]) {
+						Position source = ((ChessPiece) p).getChessPosition().toPosition();
+						Position target = new Position(i, j);
+						Piece capturedPiece = makeMove(source, target);
+						boolean isStillInCheck = testCheck(color);
+						undoMove(source, target, capturedPiece);
+						if (!isStillInCheck) {
+							return false;
+						}
+					}
+				}
+			}
+		}
+
+		return true; // Não está em cheque e não tem movimentos válidos = afogamento
 	}
 
 	// responsavel por iniciar a partida de xadrez colocando as peças no tabuleiro
@@ -198,36 +208,36 @@ public class ChessMatch {
 		placeNewPiece('d', 1, new Queen(board, Color.WHITE));
 		placeNewPiece('a', 1, new Rook(board, Color.WHITE));
 		placeNewPiece('h', 1, new Rook(board, Color.WHITE));
-//		placeNewPiece('c', 1, new Bishop(board, Color.WHITE));
-//		placeNewPiece('f', 1, new Bishop(board, Color.WHITE));
-//		placeNewPiece('b', 1, new Knight(board, Color.WHITE));
-//		placeNewPiece('g', 1, new Knight(board, Color.WHITE));
-//		placeNewPiece('a', 2, new Pawn(board, Color.WHITE, this));
-//		placeNewPiece('b', 2, new Pawn(board, Color.WHITE, this));
-//		placeNewPiece('c', 2, new Pawn(board, Color.WHITE, this));
-//		placeNewPiece('d', 2, new Pawn(board, Color.WHITE, this));
-//		placeNewPiece('e', 2, new Pawn(board, Color.WHITE, this));
-//		placeNewPiece('f', 2, new Pawn(board, Color.WHITE, this));
-//		placeNewPiece('g', 2, new Pawn(board, Color.WHITE, this));
-//		placeNewPiece('h', 2, new Pawn(board, Color.WHITE, this));
+		placeNewPiece('c', 1, new Bishop(board, Color.WHITE));
+		placeNewPiece('f', 1, new Bishop(board, Color.WHITE));
+		placeNewPiece('b', 1, new Knight(board, Color.WHITE));
+		placeNewPiece('g', 1, new Knight(board, Color.WHITE));
+		placeNewPiece('a', 2, new Pawn(board, Color.WHITE, this));
+		placeNewPiece('b', 2, new Pawn(board, Color.WHITE, this));
+		placeNewPiece('c', 2, new Pawn(board, Color.WHITE, this));
+		placeNewPiece('d', 2, new Pawn(board, Color.WHITE, this));
+		placeNewPiece('e', 2, new Pawn(board, Color.WHITE, this));
+		placeNewPiece('f', 2, new Pawn(board, Color.WHITE, this));
+		placeNewPiece('g', 2, new Pawn(board, Color.WHITE, this));
+		placeNewPiece('h', 2, new Pawn(board, Color.WHITE, this));
 
-//		placeNewPiece('d', 8, new Queen(board, Color.BLACK));
+		placeNewPiece('d', 8, new Queen(board, Color.BLACK));
 		// this e referente ao propia classe
 		placeNewPiece('e', 8, new King(board, Color.BLACK, this));
-//		placeNewPiece('h', 8, new Rook(board, Color.BLACK));
-//		placeNewPiece('a', 8, new Rook(board, Color.BLACK));
-//		placeNewPiece('c', 8, new Bishop(board, Color.BLACK));
-//		placeNewPiece('f', 8, new Bishop(board, Color.BLACK));
-//		placeNewPiece('b', 8, new Knight(board, Color.BLACK));
-//		placeNewPiece('g', 8, new Knight(board, Color.BLACK));
-//		placeNewPiece('a', 7, new Pawn(board, Color.BLACK, this));
-//		placeNewPiece('b', 7, new Pawn(board, Color.BLACK, this));
-//		placeNewPiece('c', 7, new Pawn(board, Color.BLACK, this));
-//		placeNewPiece('d', 7, new Pawn(board, Color.BLACK, this));
-//		placeNewPiece('e', 7, new Pawn(board, Color.BLACK, this));
-//		placeNewPiece('f', 7, new Pawn(board, Color.BLACK, this));
-//		placeNewPiece('g', 7, new Pawn(board, Color.BLACK, this));
-//		placeNewPiece('h', 7, new Pawn(board, Color.BLACK, this));
+		placeNewPiece('h', 8, new Rook(board, Color.BLACK));
+		placeNewPiece('a', 8, new Rook(board, Color.BLACK));
+		placeNewPiece('c', 8, new Bishop(board, Color.BLACK));
+		placeNewPiece('f', 8, new Bishop(board, Color.BLACK));
+		placeNewPiece('b', 8, new Knight(board, Color.BLACK));
+		placeNewPiece('g', 8, new Knight(board, Color.BLACK));
+		placeNewPiece('a', 7, new Pawn(board, Color.BLACK, this));
+		placeNewPiece('b', 7, new Pawn(board, Color.BLACK, this));
+		placeNewPiece('c', 7, new Pawn(board, Color.BLACK, this));
+		placeNewPiece('d', 7, new Pawn(board, Color.BLACK, this));
+		placeNewPiece('e', 7, new Pawn(board, Color.BLACK, this));
+		placeNewPiece('f', 7, new Pawn(board, Color.BLACK, this));
+		placeNewPiece('g', 7, new Pawn(board, Color.BLACK, this));
+		placeNewPiece('h', 7, new Pawn(board, Color.BLACK, this));
 	}
 
 	// Retorna uma matriz de boolean com os possíveis movimentos a partir da peça
@@ -274,7 +284,7 @@ public class ChessMatch {
 			checkMate = true;
 		} else if (testStalement(opponent(currentPlayer))) {
 			stalemate = true;
-		}else {
+		} else {
 			nextTurn();
 		}
 
@@ -355,8 +365,12 @@ public class ChessMatch {
 				}
 				// adiciona nas peças capturadas, adiciona na lista de peças capturadas e remove
 				// do tabuleiro
-				capPiece = board.removePiece(pawnPosition);
-				capturedPieces.add((ChessPiece) capPiece);
+				Piece capturedPawn = board.removePiece(pawnPosition);
+				if (capturedPawn != null) {
+					capturedPieces.add((ChessPiece) capturedPawn);
+					piecesOnTheBoard.remove(capturedPawn);
+					capPiece = capturedPawn; // mantem o valor correto
+				}
 				piecesOnTheBoard.remove(capPiece);
 			}
 		}
@@ -425,13 +439,78 @@ public class ChessMatch {
 		}
 	}
 
-	protected Piece makeMoveAI(Position source, Position target) {
-		jogadaValida = true;
-		Piece capturedPiece = makeMove(source, target);
-		//testa se o rei esta em check
+	public void performAIMove() {
+		Position bestMove = ai.findBestMove(board, this);
+
+		if (bestMove != null) {
+			List<ChessPiece> allBlack = getPiecesOnTheBoard().stream().filter(p -> p.getColor() == Color.BLACK)
+					.collect(Collectors.toList());
+
+			for (ChessPiece piece : allBlack) {
+				boolean[][] possibleMoves = piece.possibleMoves();
+
+				if (possibleMoves[bestMove.getRow()][bestMove.getColumn()]) {
+					ChessPosition source = piece.getChessPosition();
+					ChessPosition target = ChessPosition.fromPosition(bestMove);
+					peformChessMove(source, target);
+					return;
+				}
+			}
+		} else {
+			System.out.println("IA não encontrou nenhum movimento possível.");
+		}
+	}
+
+	protected Piece makeMoveAI(Position source, Position target, Color color) {
+		jogadaValida = false;
+
+		Piece p = board.removePiece(source);
+		Piece capPiece = null;
+
+		capPiece = board.removePiece(target);
+
+		board.placePiece(p, target);
+
+		if (capPiece != null) {
+			piecesOnTheBoard.remove(capPiece);
+			capturedPieces.add((ChessPiece) capPiece);
+		}
+		// Roque para direita
+		if (p instanceof King && target.getColumn() == source.getColumn() + 2) {
+			makeMove(new Position(source.getRow(), source.getColumn() + 3),
+					new Position(source.getRow(), source.getColumn() + 1));
+		}
+		// Roque para a esquerda
+		if (p instanceof King && target.getColumn() == source.getColumn() - 2) {
+			makeMove(new Position(source.getRow(), source.getColumn() - 4),
+					new Position(source.getRow(), source.getColumn() - 1));
+		}
+
+		// Movimento especial en Passant
+		if (p instanceof Pawn) {
+			// testa se o peão andou na diagonal e não capturou peça
+			if (source.getColumn() != target.getColumn() && capturedPieces != null) {
+				Position pawnPosition;
+				// testa se e branco ou preto
+				if (((ChessPiece) p).getColor() == Color.WHITE) {
+					pawnPosition = new Position(target.getRow() + 1, target.getColumn());
+				} else {
+					pawnPosition = new Position(target.getRow() - 1, target.getColumn());
+				}
+				// adiciona nas peças capturadas, adiciona na lista de peças capturadas e remove
+				// do tabuleiro
+				Piece capturedPawn = board.removePiece(pawnPosition);
+				if (capturedPawn != null) {
+					capturedPieces.add((ChessPiece) capturedPawn);
+					piecesOnTheBoard.remove(capturedPawn);
+					capPiece = capturedPawn; // mantem o valor correto
+				}
+			}
+		}
+		// testa se o rei esta em check
 		if (testCheck(currentPlayer)) {
-			undoMove(source, target, capturedPiece);
-			jogadaValida = false;
+			undoMove(source, target, capPiece);
+			return null;
 		}
 		ChessPiece movedPiece = (ChessPiece) board.piece(target);
 
@@ -446,12 +525,11 @@ public class ChessMatch {
 				promoted = replacePromotedPiece("Q");
 			}
 		}
-
 		// testa se o oponente esta em check
-		check = (testCheck(opponent(currentPlayer))) ? true : false;
+		check = (testCheck(opponent(color))) ? true : false;
 
 		// se o oponente da peça que mexeu ficou em xeque-mate acabou o game
-		if (testCheckMate(opponent(currentPlayer))) {
+		if (testCheckMate(opponent(color))) {
 			checkMate = true;
 		}
 
@@ -463,20 +541,89 @@ public class ChessMatch {
 		} else {
 			enPassantVulnerable = null;
 		}
-
-		return capturedPiece;
+		pieceToReverse.add(new AbstractMap.SimpleEntry<>(capPiece, new ChessMove(source, target)));
+		jogadaValida = true;
+		return capPiece;
 	}
 
-	protected void undoMoveAI(Position souce, Position target, Piece capturedPiece) {
-		undoMove(souce, target, capturedPiece);
-		/*
-		 * o undoMoveAI e usado nos testes para encontrar o melhor movimento, então tudo
-		 * deve voltar como era antes
-		 */
-		check = (testCheck(opponent(currentPlayer))) ? true : false;
-		if (!testCheckMate(opponent(currentPlayer))) {
-			checkMate = false;
+	protected void undoMoveAI() {
+		try {
+			currentPlayer = Color.BLACK;
+			Collections.reverse(pieceToReverse);
+			for (Map.Entry<Piece, ChessMove> undoMoveFrom : pieceToReverse) {
+//				System.err.println("source e target " + undoMoveFrom + " e a peça" + board.piece(undoMoveFrom.getValue().getTarget()) + " E na fonte " + board.piece(undoMoveFrom.getValue().getSource()));
+
+				Piece p = board.removePiece(undoMoveFrom.getValue().getTarget());
+				board.placePiece(p, undoMoveFrom.getValue().getTarget());
+				piecesOnTheBoard.add((ChessPiece) p);
+
+				// Desfaz o roque da direita
+				if (p instanceof King && undoMoveFrom.getValue().getTarget()
+						.getColumn() == undoMoveFrom.getValue().getSource().getColumn() + 2) {
+					p = board.removePiece(new Position(undoMoveFrom.getValue().getSource().getRow(),
+							undoMoveFrom.getValue().getSource().getColumn() + 1));
+					board.placePiece(p, new Position(undoMoveFrom.getValue().getSource().getRow(),
+							undoMoveFrom.getValue().getSource().getColumn() + 3));
+
+					if (p != null) {
+						board.placePiece(p, undoMoveFrom.getValue().getTarget());
+						piecesOnTheBoard.add((ChessPiece) undoMoveFrom.getKey());
+					}
+				}
+				// Desfaz o roque da esquerda
+				if (p instanceof King && undoMoveFrom.getValue().getTarget()
+						.getColumn() == undoMoveFrom.getValue().getSource().getColumn() - 2) {
+					undoMove(
+							new Position(undoMoveFrom.getValue().getSource().getRow(),
+									undoMoveFrom.getValue().getSource().getColumn() - 4),
+							new Position(undoMoveFrom.getValue().getSource().getRow(),
+									undoMoveFrom.getValue().getSource().getColumn() - 1),
+							null);
+
+					p = board.removePiece(new Position(undoMoveFrom.getValue().getSource().getRow(),
+							undoMoveFrom.getValue().getSource().getColumn() - 1));
+					board.placePiece(p, new Position(undoMoveFrom.getValue().getSource().getRow(),
+							undoMoveFrom.getValue().getSource().getColumn() - 4));
+
+					if (p != null) {
+						board.placePiece(p, undoMoveFrom.getValue().getTarget());
+						piecesOnTheBoard.add((ChessPiece) undoMoveFrom.getKey());
+					}
+				}
+
+				// Movimento especial en Passant
+				if (p instanceof Pawn) {
+					// testa se o peão andou na diagonal e não capturou peça
+					if (undoMoveFrom.getValue().getSource().getColumn() != undoMoveFrom.getValue().getTarget()
+							.getColumn() && capturedPieces == enPassantVulnerable) {
+						ChessPiece pawn = (ChessPiece) board.removePiece(undoMoveFrom.getValue().getTarget());
+						Position pawnPosition;
+						// testa se e branco ou preto
+						if (((ChessPiece) p).getColor() == Color.WHITE) {
+							pawnPosition = new Position(3, undoMoveFrom.getValue().getTarget().getColumn());
+						} else {
+							pawnPosition = new Position(4, undoMoveFrom.getValue().getTarget().getColumn());
+						}
+
+						board.placePiece(pawn, pawnPosition);
+					}
+				}
+
+				/*
+				 * o undoMoveAI e usado nos testes para encontrar o melhor movimento, então tudo
+				 * deve voltar como era antes
+				 */
+				check = (testCheck(opponent(currentPlayer))) ? true : false;
+				if (!testCheckMate(opponent(currentPlayer))) {
+					checkMate = false;
+				}
+				currentPlayer = opponent(currentPlayer);
+			}
+		} catch (NullPointerException e) {
+			e.printStackTrace();
 		}
+		pieceToReverse.clear();
+		currentPlayer = Color.BLACK;
 	}
 
 	private void nextTurn() {

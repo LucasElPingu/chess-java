@@ -1,5 +1,7 @@
 package boardgame;
 
+import application.UI;
+
 public class Board {
 
 	private int rows;

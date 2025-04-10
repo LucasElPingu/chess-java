@@ -7,18 +7,24 @@ import java.util.stream.Collectors;
 import boardgame.Board;
 import boardgame.Piece;
 import boardgame.Position;
+import chess.pieces.Bishop;
+import chess.pieces.King;
+import chess.pieces.Knight;
+import chess.pieces.Pawn;
+import chess.pieces.Queen;
+import chess.pieces.Rook;
 
 public class ChessAI {
 
 	private static final int MAX_DEPTH = 3;
-
-	private List<ChessPiece> piecesOnTheBoard = new ArrayList<>();
+	
+	
 
 	// retorna uma lista com todas as peças de uma cor
-	private List<Piece> getAllPiecesByColor(Color color) {
-		List<Piece> blackPiece = piecesOnTheBoard.stream().filter(x -> ((ChessPiece) x).getColor() == color)
+	private List<ChessPiece> getAllPiecesByColor(Color color, ChessMatch match) {
+		List<ChessPiece> pieces = match.getPiecesOnTheBoard().stream().filter(x -> ((ChessPiece) x).getColor() == color)
 				.collect(Collectors.toList());
-		return blackPiece;
+		return pieces;
 	}
 
 	// retorna a melhor posição
@@ -26,68 +32,64 @@ public class ChessAI {
 		int bestScore = Integer.MIN_VALUE;
 		Position bestMove = null;
 		// pega todas as peças pretas
-		List<Piece> allBlack = getAllPiecesByColor(Color.BLACK);
+		List<ChessPiece> allBlack = getAllPiecesByColor(Color.BLACK, match);
 		// percorre todas as peças pretas
-		for (Piece piece : allBlack) {
+		for (ChessPiece piece : allBlack) {
 			// pega todos os movimentos possiveis da piece
 			boolean[][] possiblePieceMove = piece.possibleMoves();
 			// percorre todo o tabuleiro testando as jogadas possiveis
 			for (int i = 0; i < board.getRows(); i++) {
 				for (int j = 0; j < board.getColumns(); j++) {
 
-					if (possiblePieceMove[i][j]) {
-						Position source = ((ChessPiece) piece).getChessPosition().toPosition();
-						Position target = new Position(i, j);
-						Piece capturedPiece = match.makeMoveAI(source, target);
-						if (match.getJogadaValida()) {
-							int score = minimax(match, MAX_DEPTH - 1, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
 
-							if (score > bestScore) {
-								bestScore = score;
-								bestMove = target;
-							}
-						}
-						match.undoMoveAI(source, target, capturedPiece);
+					Position source = ((ChessPiece) piece).getChessPosition().toPosition();
+					Position target = new Position(i, j);
+					if (possiblePieceMove[i][j]) {
+						match.makeMoveAI(source, target, Color.BLACK);
 					}
+					if (match.getJogadaValida()) {
+						int score = minimax(match, MAX_DEPTH - 1, Integer.MIN_VALUE, Integer.MAX_VALUE, false, board);
+
+						if (score > bestScore) {
+							bestScore = score;
+							bestMove = target;
+						}
+					}
+
 				}
 			}
 		}
 		return bestMove;
 	}
 
-	private int minimax(ChessMatch match, int depth, int alpha, int beta, boolean maximizingPlayer) {
-		if (depth == 0 || match.getCheckMate() || match.isStalemate()) {
+	private int minimax(ChessMatch match, int depth, int alpha, int beta, boolean maximizingPlayer, Board board) {
+		if (depth == 0 || match.getCheckMate() || match.getStalemate()) {
 			return evaluateBoard(match);
 		}
 
 		Color currentColor = maximizingPlayer ? Color.BLACK : Color.WHITE;
-		List<ChessMove> allMoves = getAllPossibleMoves(match, currentColor);
+		List<ChessMove> allMoves = getAllPossibleMoves(match, currentColor, board);
 
-		if (maximizingPlayer) {
-			int maxEval = Integer.MIN_VALUE;
-			for (ChessMove move : allMoves) {
-				ChessPiece captured = match.performTestMove(move);
-				int eval = minimax(match, depth - 1, alpha, beta, false);
-				match.undoTestMove(move, captured);
-				maxEval = Math.max(maxEval, eval);
-				alpha = Math.max(alpha, eval);
-				if (beta <= alpha)
-					break;
+		int bestEval = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+		for (ChessMove move : allMoves) {
+			Position source = move.getSource();
+			Position target = move.getTarget();
+			if (isValidSource(source, currentColor, board)) {
+				match.makeMoveAI(source, target, currentColor);
+
+				if (match.getJogadaValida()) {
+					int eval = minimax(match, depth - 1, alpha, beta, !maximizingPlayer, board);
+					bestEval = maximizingPlayer ? Math.max(bestEval, eval) : Math.min(bestEval, eval);
+					alpha = maximizingPlayer ? Math.max(alpha, eval) : alpha;
+					beta = !maximizingPlayer ? Math.min(beta, eval) : beta;
+				}
 			}
-			return maxEval;
-		} else {
-			int minEval = Integer.MAX_VALUE;
-			for (ChessMove move : allMoves) {
-				ChessPiece captured = match.performTestMove(move);
-				int eval = minimax(match, depth - 1, alpha, beta, true);
-				match.undoTestMove(move, captured);
-				minEval = Math.min(minEval, eval);
-				beta = Math.min(beta, eval);
-				if (beta <= alpha)
-					break;
-			}
-			return minEval;
+			if (beta <= alpha)
+				break;
 		}
+
+		return bestEval;
 	}
 
 	private int evaluateBoard(ChessMatch match) {
@@ -100,49 +102,54 @@ public class ChessAI {
 				}
 			}
 		}
+		match.undoMoveAI();
 		return score;
 	}
 
 	private int getPieceValue(ChessPiece piece) {
-		switch (piece.toString().toUpperCase()) {
-		case "P":
-			return 10;
-		case "N":
-		case "B":
-			return 30;
-		case "R":
-			return 50;
-		case "Q":
-			return 90;
-		case "K":
+		if (piece instanceof Pawn)
+			return 100;
+		if (piece instanceof Knight)
+			return 320;
+		if (piece instanceof Bishop)
+			return 330;
+		if (piece instanceof Rook)
+			return 500;
+		if (piece instanceof Queen)
 			return 900;
-		default:
+		if (piece instanceof King)
 			return 0;
-		}
+		/*
+		 * ajuda o Minimax a focar nas peças móveis e capturáveis, o que é mais
+		 * realista, já que o rei não será trocado. Pode por valor alto
+		 */
+
+		return 0;
 	}
-	/*
-	 * outro método possivel para pegar todos os movimentos de todas as peças pretas
-	 * mas irei optar pelo outro msm, para manter a consistencia na logica do inicio
-	 * do projeto
-	 */
-//	private List<ChessMove> getAllPossibleMoves(ChessMatch match, Color color) {
-//		List<ChessMove> moves = new ArrayList<>();
-//		for (int i = 0; i < 8; i++) {
-//			for (int j = 0; j < 8; j++) {
-//				Position pos = new Position(i, j);
-//				ChessPiece piece = match.piece(pos);
-//				if (piece != null && piece.getColor() == color) {
-//					boolean[][] legalMoves = piece.possibleMoves();
-//					for (int x = 0; x < 8; x++) {
-//						for (int y = 0; y < 8; y++) {
-//							if (legalMoves[x][y]) {
-//								moves.add(new ChessMove(pos, new Position(x, y)));
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//		return moves;
-//	}
+
+	private boolean isValidSource(Position pos, Color color, Board board) {
+		ChessPiece piece = (ChessPiece) board.piece(pos);
+		return piece != null && piece.getColor() == color;
+	}
+
+	private List<ChessMove> getAllPossibleMoves(ChessMatch match, Color color, Board board) {
+		List<ChessMove> moves = new ArrayList<>();
+		for (int i = 0; i < board.getRows(); i++) {
+			for (int j = 0; j < board.getColumns(); j++) {
+				Position pos = new Position(i, j);
+				ChessPiece piece = (ChessPiece) board.piece(pos);
+				if (piece != null && piece.getColor() == color) {
+					boolean[][] legalMoves = piece.possibleMoves();
+					for (int x = 0; x < board.getRows(); x++) {
+						for (int y = 0; y < board.getColumns(); y++) {
+							if (legalMoves[x][y]) {
+								moves.add(new ChessMove(pos, new Position(x, y)));
+							}
+						}
+					}
+				}
+			}
+		}
+		return moves;
+	}
 }
